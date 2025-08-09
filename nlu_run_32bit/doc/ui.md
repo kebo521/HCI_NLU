@@ -192,12 +192,14 @@ typedef struct {
     void (*UnLockWindow)(WindowBase* pWd);  
 } UI_FuncSynPlus;  
 
-// Callback functions  
-typedef void (*FUNC_MouseLdown)(int x, int y);    // Left click  
-typedef void (*FUNC_MouseRdown)(int x, int y);    // Right click  
-typedef void (*FUNC_MouseMove)(int type, int x, int y);  // Move (type=0: hover)  
-typedef void (*FUNC_MouseWheel)(int updown);      // Wheel (+down/-up)  
-typedef void (*FUNC_Keyboard)(int down, int key, int timems); // Key events  
+// Mouse/Keyboard callback definitions  
+typedef int (*FUNC_MouseLdown)(bitmap_t&, int x, int y);     // Left click  
+typedef int (*FUNC_MouseRdown)(bitmap_t&, int x, int y);     // Right click  
+typedef int (*FUNC_MouseMove)(bitmap_t&, int type, int x, int y);  // Move  
+typedef int (*FUNC_MouseWheel)(bitmap_t&, int updown);       // Wheel  
+typedef int (*FUNC_Keyboard)(bitmap_t&, int down, int key, int timems); // Key events  
+#define WM_WD_REFRESH 'P'  // Refresh required if bitmap modified  
+
 ```
 
 **Full Implementation Guide**:
