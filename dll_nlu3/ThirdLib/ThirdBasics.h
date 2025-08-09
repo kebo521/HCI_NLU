@@ -10,7 +10,9 @@
 #define _THIRD_BASICS_
 
 #include <stdio.h>
+#include <stdint.h>
 #include <windows.h>
+
 //==============基础数据定义============================
 typedef unsigned char   	u8;
 typedef unsigned short   	u16;
@@ -19,7 +21,12 @@ typedef unsigned int   		u32;
 //===================C++才能用到的内容===========================================
 #ifdef __cplusplus
 typedef unsigned short  	USTR;	//!< Define u16
-typedef float  				INUM;
+
+#if defined(_WIN64) || defined(__LP64__)  
+typedef double  INUM; //64位系统，双精度定义
+#else
+typedef float  	INUM;	
+#endif
 
 //------布尔三源定义---增加 反向(ANTI)-
 #define ANTI  (-1)
@@ -101,14 +108,14 @@ struct _EXP_UNIT
 	{
 		DATA_BUFSTR *pBfS;		//字符串(Type==TYPE_DATA)
 		INUM iNum;				//数值 (Type==TYPE_NUM)
-		int	iVal;				//有符号数值(Type==NUM_INT)
-		int Result;				//返回结果1和0(Type==NUM_BOOL)
+		intptr_t iVal;		//有符号数值(Type==NUM_INT)
+		intptr_t Result;		//返回结果1和0(Type==NUM_BOOL)
 		EXP_UNIT* pUNIT;		// 对应 space==SPACE_POIT或space==SPACE_SUB 时使用
 	};
 	union
 	{
 		INUM	multiple;	//倍数,为SPACE_POIT,SPACE_SUB 时有效果。
-		int		offset;		//偏移量
+		intptr_t offset;	//偏移量
 	};
 	EXP_UNIT* pAttr;	//属性，也可以表关系
 	//------------------------------------------------------------
@@ -186,9 +193,9 @@ extern DefOsLogHex OsLogHex;
 }
 #endif
 #define LOG(t,...)						OsLog(t, ## __VA_ARGS__)
-#define LOG_HEX(t,msg,pBuff,Len)		OsLogHex(t,msg,pBuff,Len)
+#define LOG_HEX(t,msg,pBuf,Len)		OsLogHex(t,msg,pBuf,Len)
 #define LG(...)							OsLog(LOG_INFO, ## __VA_ARGS__)
-#define LG_HEX(msg,pBuff,Len)			OsLogHex(LOG_INFO,msg,pBuff,Len)
+#define LG_HEX(msg,pBuf,Len)			OsLogHex(LOG_INFO,msg,pBuf,Len)
 
 
 #endif
