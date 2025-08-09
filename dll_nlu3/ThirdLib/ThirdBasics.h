@@ -81,8 +81,7 @@ typedef int(*FUNC_PLUS)(EnvP,EXP_UNIT*, EXP_UNIT*, EXP_UNIT*); //加强型函数
 //==========连续字符=====================
 typedef struct
 {
-	int offset;
-	int Len;					//参数长度
+	size_t Len;					//参数长度
 	union
 	{
 		u8		pBuf[];	//缓冲字符号(tval==DATA_BUFF)
