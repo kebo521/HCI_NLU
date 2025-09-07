@@ -43,7 +43,7 @@ void LoadNumInUnit(EXP_UNIT* &pUnit,INUM iNum)
 	pUnit->iNum = iNum;
 }
 
-void LoadDataInUnit(EXP_UNIT* &pUnit, int tval,const void *pBuf, int bLen)
+void LoadDataInUnit(EXP_UNIT* &pUnit, int tval,const void *pBuf, size_t bLen)
 {
 	DATA_BUFSTR *pData = (DATA_BUFSTR *)gMalloc(sizeof(DATA_BUFSTR) + bLen + 1);
 	memcpy(pData->pBuf, pBuf, bLen);
@@ -118,6 +118,7 @@ const DEF_FUNC_Tbl gFuncTbl =
 {
 	FUNC_TYPE_I,	1,
 	1,
+	"test",
 	{
 		"fun1",		FunTest1,
 		"功能2",	FunTest2,
@@ -126,20 +127,22 @@ const DEF_FUNC_Tbl gFuncTbl =
 		NULL,		NULL,	//结束行
 	}
 };
+//注：调用方式为：test.fun1(参数1,参数2,参数3,...),当TbName为NULL时，表示不需要表名，直接调用函数名即可。
+
 /*
 开发者信息(JSON格式{id:var,id2:var2,....})说明：
 ID 	：已注册的开发者编号（版权依据，贡献依据，收益凭证），没有可以无此项
 公司	：个人开发者不需要填此项
 作者	：开发者姓名
-手机	：开发者手机号（贡献版权依据）
+手机	：开发者手机号（当无开发者编号时，也可以作为贡献版权依据）
 */
 const char sDeveloperInfo[] = \
 "{\"ID\":\"00000001-0001-0001\","\
-"\"公司\":\"长沙思知\","        \
-"\"电话\":\"0731****8888\","     \
-"\"作者\":\"支叶\","             \
-"\"手机\":\"138****8888\"}";
+"\"Corp\":\"长沙思知\","        \
+"\"Auth\":\"支叶\","             \
+"\"Mob\":\"138****8888\"}";
 
+//const char sDeveloperCert[]
 
 //==============导出总接口：gTotalInterSet==================
 extern const TOTAL_INTERFACE gTotalInterSet =

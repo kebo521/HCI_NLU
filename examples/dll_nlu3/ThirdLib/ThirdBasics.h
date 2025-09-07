@@ -121,13 +121,14 @@ struct _EXP_UNIT
 	//------------------------------------------------------------
 	EXP_UNIT* pNext;	//下一条
 };
-//====================基本功能====================================================
-extern void* gMalloc(unsigned size);
+//====================基本功能(核心仓版本 >= "2.2.0")=================================================
+extern void* gMalloc(size_t len);
+extern void* gRealloc(void* p, size_t len);
 extern void gFree(void* p);
 extern EXP_UNIT* BAS_CreateUnit(void);
-extern void BAS_FreeUnitAll(EXP_UNIT* pStar);
 extern void BAS_CleanUnitData(EXP_UNIT* pUnit);
-extern void BAS_FreeCurrParAndNext(EXP_UNIT* pStar,int Num);
+extern void BAS_FreeUnitAll(EXP_UNIT* pStar);
+extern void BAS_FreeCurrParAndNext(EXP_UNIT* pStar, int Num);
 extern EXP_UNIT* BAS_FreeUNIT(EXP_UNIT* pStar,int Num);
 extern EXP_UNIT* BAS_SetUnitLose(EXP_UNIT* pStar,int Num);
 extern void BAS_FreeNext(EXP_UNIT* pStar,int Num);
@@ -162,8 +163,9 @@ typedef struct
 
 typedef struct
 {
-	u8	type,Priority;
-	u16	ver;					//接口版本
+	u16	type,Priority;
+	u32	ver;					//接口版本
+	const char* TbName;			//表名称
 	const FUNC_MatchI ArrayI[];	//以NULL结束
 }DEF_FUNC_Tbl;
 //==========================对外总结构定义===============================

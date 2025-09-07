@@ -193,13 +193,126 @@ typedef struct {
 } UI_FuncSynPlus;  
 
 // Mouse/Keyboard callback definitions  
-typedef int (*FUNC_MouseLdown)(bitmap_t&, int x, int y);     // Left click  
-typedef int (*FUNC_MouseRdown)(bitmap_t&, int x, int y);     // Right click  
-typedef int (*FUNC_MouseMove)(bitmap_t&, int type, int x, int y);  // Move  
-typedef int (*FUNC_MouseWheel)(bitmap_t&, int updown);       // Wheel  
-typedef int (*FUNC_Keyboard)(bitmap_t&, int down, int key, int timems); // Key events  
+typedef int (*FUNC_MouseLdown)(bitmap_t*, int x, int y);     // Left click  
+typedef int (*FUNC_MouseRdown)(bitmap_t*, int x, int y);     // Right click  
+typedef int (*FUNC_MouseMove)(bitmap_t*, int type, int x, int y);  // Move  
+typedef int (*FUNC_MouseWheel)(bitmap_t*, int updown);       // Wheel  
+typedef int (*FUNC_Keyboard)(bitmap_t*, int down, int key, int timems); // Key events  
 #define WM_WD_REFRESH 'P'  // Refresh required if bitmap modified  
+//==================  pullwindow Return Structure Definition ========================
+//  RGBQUAD
+typedef struct
+{
+    void* fd;
+    pWindowBase (*LockWindow)(HWND hWnd); // UI operation lock to avoid information synchronization issues. Returns NULL if the window has been released and can no longer be operated.
+    bitmap_t ui;
+    void (*push)(pWindowBase pWd);          // Push to display.
+    void (*loadKeyMouse)(pWindowBase pWd, FUNC_Keyboard pKeybd, FUNC_MouseLdown pLdow, FUNC_MouseRdown pRdown, FUNC_MouseWheel pWheel, FUNC_MouseMove pMove); // Keyboard and mouse callback
+    void (*UnLockWindow)(pWindowBase pWd);  // Unlock
+} UI_FuncSyn;
 
+// Add the drawing window operation parameter tSysBaseUi in the code.
+UI_FuncSynPlus tSysBaseUi = { 0 };
+
+//===== Download "Natural Language Understanding NLU - Third-party Function Access" https://gitee.com/kebo521/nlu3
+void Keyboard(bitmap_t* pWd, int down, int key, int timems)
+{
+    if (down) { // A key is pressed
+        //key, timems
+    }
+    else {
+        if (key == 0) {
+        // Window closed, bitmap_t ui has been released. Do not write data to ui.data afterwards.
+        }
+    }
+}
+//---- If mouse functions are required, define the following functions (select as needed) -----------------
+void MouseLdown(bitmap_t* pWd, int x, int y) // Left click. x,y are the coordinates on the window.
+{
+    // Code to handle left mouse click.
+}
+void MouseRdown(bitmap_t* pWd, int x, int y) // Right click. x,y are the coordinates on the window.
+{
+    // Code to handle right mouse click.
+}
+void MouseMove(bitmap_t* pWd, int type, int x, int y) // type = 0: just moving; type=1: moving with left button pressed; type=2: moving with right button pressed.
+{
+    bitmap_t& wd = *pWd; // pWd will not be NULL. In C++ code, use reference for potential speed improvement.
+    // Code to handle mouse movement.
+}
+void MouseWheel(bitmap_t* pWd, int updown)    // Positive: scroll down; Negative: scroll up.
+{
+    if (updown > 0) {
+    }
+    else {
+    }
+}
+//---------- Y Language Reference Function Definition ---------------------------------
+int FunPullUiBase(EnvP pENV, EXP_UNIT*& pInOutPar)    // (&UiBase)
+{
+    EXP_UNIT* pData = BAS_ParsingUnit(pInOutPar);
+    if (pData == NULL || pData->type != TYPE_DATA || pData->tval != DATA_BUF) return -5;
+    if (pData->pBfS->Len < sizeof(UI_FuncSyn)) {
+        LoadBoolInUnit(pInOutPar, false);
+        return 1;
+    }
+    UI_FuncSynPlus* pSyn = (UI_FuncSynPlus*)pData->pBfS->pBuf;
+    tSysBaseUi.ui.fd = pSyn->fd;
+    tSysBaseUi.LockWindow = pSyn->LockWindow;
+    tSysBaseUi.UnLockWindow = pSyn->UnLockWindow;
+    tSysBaseUi.ui.w = pSyn->ui.w;
+    tSysBaseUi.ui.h = pSyn->ui.h;
+    tSysBaseUi.ui.data = pSyn->ui.data;  // Modify display content via tSysBaseUi.ui.data later.
+    tSysBaseUi.push = pSyn->push; // Execute: tSysBaseUi.push(pWd) to push display refresh later.
+    //------ Keyboard or mouse functions require executing callback reverse loading ---------------
+    WindowBase* pWd = tSysBaseUi.LockWindow(tSysBaseUi.fd);
+    if (pWd) {
+        (*pSyn->loadKeyMouse)(pWd, Keyboard, MouseLdown, MouseRdown, MouseMove);
+        tSysBaseUi.UnLockWindow(pWd);
+        LoadBoolInUnit(pInOutPar, true);
+    }
+    else {
+        LoadBoolInUnit(pInOutPar, false);
+    }
+    //-----------------------------------------------------
+    return 1;    // Only return one parameter.
+}
+/* Full window refresh example:
+    WindowBase* pWd = tSysBaseUi.LockWindow(tSysBaseUi.fd); // Check and lock window.
+    if (pWd == NULL) return -1; // Window no longer exists, return directly.
+    register bitmap_trgb* pIn = tSysBaseUi.ui.data;
+    register int max = tSysBaseUi.ui.w * tSysBaseUi.ui.h;
+    while (max--) {
+        pIn->t.r = 255;
+        pIn->t.g = 255;
+        pIn->t.b = 255;
+        //pIn->rgba = 0xFFFFFF;
+        pIn++;
+    }
+    tSysBaseUi.push(pWd); // Push refresh.
+    tSysBaseUi.UnLockWindow(pWd); // Unlock window.
+*/
+//------------- Place FunPullUiBase into the gFuncTbl reference table -----------------
+const DEF_FUNC_Tbl gFuncTbl =
+{
+    FUNC_TYPE_I,    1,
+    1,
+    {
+        ......
+        "getuibase",    FunPullUiBase,
+        NULL,           NULL,    // End.
+    }
+};
+
+//==================== Underlying Canvas Window Interface (Open) ================================================
+typedef struct
+{
+    void* (*CreateWd)(int, int, const char*); // CreateWindow(WORD width, WORD height, const char* pName);
+    int (*PullUi)(void*, UI_FuncSyn*); // (void* fd, UI_FuncSyn* pUiSyn)
+    int (*CloseWd)(void*);    // CloseWindow(void* fd);
+} UI_FuncBase;
+
+loadwdapi(getwd()); // Third-party library implements loadwdapi to accept UI_FuncBase data. Same as: pullwd method.
 ```
 
 **Full Implementation Guide**:
