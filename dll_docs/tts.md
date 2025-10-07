@@ -1,66 +1,60 @@
-```
-# Voice Broadcast Component Library tts.dll Usage Guide
+# Text-to-Speech (TTS) Component Library tts.dll Usage Instructions
 
-Z Language Interface Instructions
+Y Language Interface Instructions
 
-##### 1.1: Broadcast Settings
-
-| Interface | settts | Set voice broadcast parameters |
-|----------|--------|--------------------------------|
-| Parameter| volume | Volume level 0~100 |
-| Parameter| rate   | Speech rate: 0=normal speed, >0=speed up, <0=slow down |
-| Returns  | bool   | Returns true on success, false on failure |
-```
-
-bool settts(volume, rate) // Example: settts(90,0) sets 90% volume at normal speed
+#### 1. Basic TTS Operation Interfaces (ArrayName "tts" : Use the command `out tts` to display all subset interfaces.)
 
 ```
-##### 1.2: Text-to-Speech Playback
-
-| Interface | paytts | Convert text to speech |
-|----------|--------|------------------------|
-| Parameter| data   | Content to broadcast (UTF-8 encoded) |
-| Parameter| block  | Blocking flag: 1=returns after completion, 0=returns immediately after starting. Defaults to 0 if omitted |
-| Returns  | bool   | Returns true on success, false on failure |
+---<out tts
+[tts].sub(pay set swav )
 ```
 
-bool paytts(data, block/null) // Examples:
+------
 
-// paytts("I am Lei Feng, I like helping others")
 
-// paytts("Playing until completion before returning", 1)
 
-```
-##### 1.3: Audio Synthesis
+##### 1.1: Playback Settings
 
-| Interface | swav   | Synthesize fixed-frequency audio |
-|----------|--------|----------------------------------|
-| Parameter| hz     | Frequency (Hz) |
-| Parameter| timeMs | Duration in milliseconds |
-| Parameter| volume | Default 90% |
-| Returns  | wavbuf | Returns WAV buffer on success, false on failure |
-```
+| Interface | tts.set | Sets the text-to-speech playback parameters.             |
+| :-------- | :------ | :------------------------------------------------------- |
+| Parameter | volume  | Playback volume level, 0~100.                            |
+| Parameter | rate    | Playback speed. 0 is normal speed, >0 faster, <0 slower. |
+| Returns   | bool    | Returns `true` on success, `false` on failure.           |
 
-c
-
-wavbuf swav(hz, time, volume/null) // Example:
-
-// data = swav(1500, 1000);
-
-// Output audio file using platform file API: outf("1500.wav", data)
-
-```
-##### Reference Implementation for C Programs:  
-**[Natural Language Understanding NLU - Third-party Function Access](https://gitee.com/kebo521/nlu3)**
+```c
+bool tts.set(volume, rate) // Example: tts.set(90, 0) // Volume 90%, normal speed.
 ```
 
-**Key Translation Notes:**
 
-1. Maintained technical terms consistency (tts.dll, wavbuf, UTF-8)
-2. Translated parameter descriptions while keeping programming terms accurate
-3. Preserved code examples and comments with English equivalents
-4. Converted "Blocking marker" to industry-standard "Blocking flag"
-5. Kept function names (settts/paytts/swav) as they're part of the API
-6. Translated "voice broadcast" to more technical "Text-to-Speech Playback"
-7. Maintained markdown structure for technical documentation clarity
-8. Added contextual translation for "雷锋" (Chinese cultural reference)
+
+##### 1.2: Play Speech
+
+| Interface | tts.pay | Converts text to speech and plays it.                        |
+| :-------- | :------ | :----------------------------------------------------------- |
+| Parameter | data    | The content to speak (UTF-8 encoding).                       |
+| Parameter | block   | Blocking flag. If 1, returns only after playback finishes. If 0, returns immediately after starting playback. Defaults to 0 if this parameter is omitted. |
+| Returns   | bool    | Returns `true` on success, `false` on failure.               |
+
+```c
+bool tts.pay(data, block/null) // Examples: tts.pay("I am Lei Feng, I like helping others."); tts.pay("I am playing until the end before returning.", 1);
+```
+
+
+
+##### 1.3: Synthesize Audio Tone
+
+| Interface | tts.swav      | Synthesizes an audio tone of a fixed frequency.              |
+| :-------- | :------------ | :----------------------------------------------------------- |
+| Parameter | hz            | Frequency in Hertz.                                          |
+| Parameter | timeMs        | Duration in milliseconds.                                    |
+| Parameter | volume        | Volume level (default is 90%).                               |
+| Returns   | wavbuf / bool | Returns a `wavbuf` containing the audio data on success, `false` on failure. |
+
+```c
+wavbuf tts.swav(hz, timeMs, volume/null) // Example: data = tts.swav(1500, 1000);
+                                          // Example: outf("1500.wav", data); // Output the audio file using the platform's built-in file output interface.
+```
+
+
+
+##### Basic C Code Definition for Reference: **[Natural Language Understanding NLU - Third-party Function Integration](https://gitee.com/kebo521/nlu3)**

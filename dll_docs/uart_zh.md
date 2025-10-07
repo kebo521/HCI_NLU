@@ -4,11 +4,20 @@ Z语言接口使用说明
 
 
 
+#### 1、串口通信基本操作接口（组名"uart",用 out uart 命令可以显示全部子集接口）
+
+```apl
+---<out uart 
+[uart].sub(close crecv recv send open scan getapi )
+```
+
+------
+
 
 
 ##### 1.1：打开串口
 
-| 接口              | uopen        | 打开串口                               |
+| 接口              | uart.open    | 打开串口                               |
 | ----------------- | ------------ | -------------------------------------- |
 | 入参              | commName     | 串口名                                 |
 | 入参              | baudrate     | 波特率                                 |
@@ -16,87 +25,87 @@ Z语言接口使用说明
 | 返回              | 操作句柄     | 成功返回 串口句柄，失败返回 false      |
 
 ```c
-hd uopen(commName,baudrate,flag/null) // fd=uopen("comx",9600,"s")
+hd uart.open(commName,baudrate,flag/null) // fd=uart.open("comx",9600,"s")
 ```
 
 
 
 ##### 1.2：串口发送数据
 
-| 接口 | usend | 发送数据                              |
-| ---- | ----- | ------------------------------------- |
-| 入参 | hd    | uopen 成功返回的句柄                  |
-| 入参 | data  | 要发送的数据（字符串或buf)            |
-| 返回 | int   | 成功返回 已发送的长度，失败返回 false |
+| 接口 | uart.send | 发送数据                              |
+| ---- | --------- | ------------------------------------- |
+| 入参 | hd        | uopen 成功返回的句柄                  |
+| 入参 | data      | 要发送的数据（字符串或buf)            |
+| 返回 | int       | 成功返回 已发送的长度，失败返回 false |
 
 ```c
-int usend(hd,data) // usend(fd,"\x02testdata123456789\x03")
+int uart.send(hd,data) // uart.send(fd,"\x02testdata123456789\x03")
 ```
 
 
 
 ##### 1.3：串口接收数据
 
-| 接口 | urecv | 接收数据                                |
-| ---- | ----- | --------------------------------------- |
-| 入参 | hd    | uopen 成功返回的句柄                    |
-| 返回 | buff  | 成功返回 已经收到的数据，失败返回 false |
+| 接口 | uart.recv | 接收数据                                |
+| ---- | --------- | --------------------------------------- |
+| 入参 | hd        | uopen 成功返回的句柄                    |
+| 返回 | buff      | 成功返回 已经收到的数据，失败返回 false |
 
 ```c
-buf urecv(hd) // data=urecv(fd)
+buf uart.recv(hd) // data=uart.recv(fd)
 ```
 
 
 
 ##### 1.4：串口关闭
 
-| 接口 | uclose | 关闭串口                      |
-| ---- | ------ | ----------------------------- |
-| 入参 | hd     | uopen 成功返回的句柄          |
-| 返回 | bool   | 成功返回 true，失败返回 false |
+| 接口 | uart.close | 关闭串口                      |
+| ---- | ---------- | ----------------------------- |
+| 入参 | hd         | uopen 成功返回的句柄          |
+| 返回 | bool       | 成功返回 true，失败返回 false |
 
 ```c
-bool uclose(hd) // uclose(fd)
+bool uart.close(hd) // uart.close(fd)
 ```
 
 
 
 ##### 1.5：扩展线程接收
 
-| 接口 | ucrecv | 线程接收                      |
-| ---- | ------ | ----------------------------- |
-| 入参 | hd     | uopen 成功返回的句柄          |
-| 返回 | bool   | 成功返回 true，失败返回 false |
+| 接口 | uart.crecv | 线程接收                      |
+| ---- | ---------- | ----------------------------- |
+| 入参 | hd         | uopen 成功返回的句柄          |
+| 返回 | bool       | 成功返回 true，失败返回 false |
 
 ```c
-bool ucrecv(hd) // ucrecv(fd) 创建一个线程独立收串口数据，将收到的数据直接打印到平台，键盘输入数据回转车可以发送数据，相当于时实交互。
+bool uart.crecv(hd) // uart.crecv(fd) 创建一个线程独立收串口数据，将收到的数据直接打印到平台，键盘输入数据回转车可以发送数据，相当于时实交互。
 ```
 
 
 
 ##### 1.6：扫描串口
 
-| 接口 | uscan | 扫描本机所有串口返回符合tag特征的串口名           |
-| ---- | ----- | ------------------------------------------------- |
-| 入参 | tag   | 特征名或不输入                                    |
-| 返回 | str{} | 成功返回 串口名(多个为给一个集合)，失败返回 false |
+| 接口 | uart.scan | 扫描本机所有串口返回符合tag特征的串口名           |
+| ---- | --------- | ------------------------------------------------- |
+| 入参 | tag       | 特征名或不输入                                    |
+| 返回 | str{}     | 成功返回 串口名(多个为给一个集合)，失败返回 false |
 
 ```c
-strname uscan(tag/null) // 
-/* sname=uscan() 返回机器上的所有串口我赋值给sname,如“COM1 COM2 COM5”
-   fd=uopen(uscan("MI_????"))  ;
+strname uart.scan(tag/null) // 
+/* sname=uart.scan() 返回机器上的所有串口我赋值给sname,如“COM1 COM2 COM5”
+   fd=uart.open(uscan("MI_????"))  ;
 ```
 
 
 
 ##### 1.7：获取C/C++程序使用的接口
 
-| 接口 | ugetapi | 从库中导出能在C/C++中使用的接口 |
-| ---- | ------- | ------------------------------- |
-| 返回 | buf     | 返回接口地址组                  |
+| 接口 | uart.getapi | 从库中导出能在C/C++中使用的接口 |
+| ---- | ----------- | ------------------------------- |
+| 返回 | buf         | 返回接口地址组                  |
 
 ```c
-bufApi ugetapi() // ugetapi();
+bufApi uart.getapi() // uart.getapi();
 //-----------结构定义----------------------  
 typedef struct _HD_UART *PT_UART;
 typedef struct

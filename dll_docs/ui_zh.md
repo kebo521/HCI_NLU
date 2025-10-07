@@ -4,98 +4,107 @@ Z语言接口使用说明
 
 
 
-### 1：基础接口
+### 1：基础接口（组名"ui"：用 out ui 命令可以显示全部子集接口）
+
+```jade
+---<out ui
+[ui].sub(smap gmap setdpi close cursor recovery backup get save pull fill push open )
+```
+
+------
+
+
 
 ##### 1.1：获取图像数据
 
-| 接口 | gmap     | 获取图像数据                      |
+| 接口 | ui.gmap  | 获取图像数据                      |
 | ---- | -------- | --------------------------------- |
 | 入参 | pathName | 文件路径名                        |
 | 返回 | mapdata  | 成功返回 图形数据，失败返回 false |
 
 ```c
-buf gmap(pathName) // mapdata=gmap("test.png")
+buf ui.gmap(pathName) // mapdata=gmap("test.png")
 ```
 
 
 
 ##### 1.2：保存图像数据
 
-| 接口 | smap     | 将图像数据存入文件                        |
+| 接口 | ui.smap  | 将图像数据存入文件                        |
 | ---- | -------- | ----------------------------------------- |
 | 入参 | pathName | 文件路径名                                |
 | 入参 | mapdata  | 图形数据                                  |
 | 返回 | int      | 成功返回 所存文件数据长度，失败返回 false |
 
 ```c
-int smap(pathName,mapdata) // smap("test2.png",mapdata) 
+int ui.smap(pathName,mapdata) // smap("test2.png",mapdata) 
 ```
 
 
 
 ##### 1.3：显示图像数据
 
-| 接口 | dmap    | 在显示屏上创建窗口显示图像数据 |
+| 接口 | ui.dmap | 在显示屏上创建窗口显示图像数据 |
 | ---- | ------- | ------------------------------ |
 | 入参 | mapdata | 图形数据                       |
 | 返回 | bool    | 成功返回 true，失败返回 false  |
 
 ```c
-bool dmap(mapdata) // dmap(mapdata)  or   dmap(gmap("test.png"))
+bool ui.dmap(mapdata) // dmap(mapdata)  or   dmap(gmap("test.png"))
 ```
 
 
 
-### 2：高级接口
+### 2：高级接口（组名"ui"）
 
 [^（增加多窗口功能，滚轮功能，光标设置功能）]: 
 
 ##### 2.1：打开画窗
 
-| 接口 | openwd | 在显示屏上 创建并显示画窗         |
-| ---- | ------ | --------------------------------- |
-| 入参 | w      | 画窗高度                          |
-| 入参 | h      | 画窗宽度                          |
-| 入参 | name   | 窗口名称                          |
-| 返回 | fd     | 成功返回 画窗句柄，失败返回 false |
+| 接口 | ui.open | 在显示屏上 创建并显示画窗         |
+| ---- | ------- | --------------------------------- |
+| 入参 | w       | 画窗高度                          |
+| 入参 | h       | 画窗宽度                          |
+| 入参 | name    | 窗口名称                          |
+| 返回 | fd      | 成功返回 画窗句柄，失败返回 false |
 
 ```c
-bool openwd(w,h,name) // fd=openwd(640,480,"test") 
+bool ui.open(w,h,name) // fd=openwd(640,480,"test") 
 ```
 
 
 
 ##### 2.2：关闭画窗
 
-| 接口 | closewd | 关闭openwindow打开的画窗      |
-| ---- | ------- | ----------------------------- |
-| 入参 | fd      | 窗口句柄                      |
-| 返回 | bool    | 成功返回 true，失败返回 false |
+| 接口 | ui.close | 关闭 ui.open 打开的画窗       |
+| ---- | -------- | ----------------------------- |
+| 入参 | fd       | 窗口句柄                      |
+| 返回 | bool     | 成功返回 true，失败返回 false |
 
 ```c
-bool closewd(fd) // closewd(fd) 
+bool ui.close(fd) // closewd(fd) 
 ```
 
 
 
 ##### 2.3：填充画窗
 
-| 接口 | fillwd | 将指定颜色填充到画窗                                         |
-| ---- | ------ | ------------------------------------------------------------ |
-| 入参 | fd     | 窗口句柄                                                     |
-| 入参 | colour | 填充色彩,参数16进制格式为 0xRRGGBB（如需要更强大控制：0xaaRRGGBB,aa为透明度，00不透明） |
-| 入参 | flag   | 当此参数不存在时，只填充不显示<br />（当aa>0时，flag==1色彩添加 (256-aa)/256,当flag==-1 色彩减少，2与-2对应以上的显示） |
-| 返回 | bool   | 成功返回 true，失败返回 false                                |
+| 接口 | ui.fill | 将指定颜色填充到画窗                                         |
+| ---- | ------- | ------------------------------------------------------------ |
+| 入参 | fd      | 窗口句柄                                                     |
+| 入参 | colour  | 填充色彩,参数16进制格式为 0xRRGGBB（如需要更强大控制：0xaaRRGGBB,aa为透明度，00不透明） |
+| 入参 | flag    | 当此参数不存在时，只填充不显示<br />（当aa>0时，flag==1色彩添加 (256-aa)/256,当flag==-1 色彩减少，2与-2对应以上的显示） |
+| 返回 | bool    | 成功返回 true，失败返回 false                                |
 
 ```c
-bool fillwd(fd,colour,flag) // fillwd(fd,0xFF0000,2) 画窗为全红；fillwd(fd,0x800000FF,2) 画窗增加50%蓝色
+bool ui.fill(fd,colour,flag) // fillwd(fd,0xFF0000,2) 画窗为全红；fillwd(fd,0x800000FF,2) 画窗增加50%蓝色
 ```
 
 
 
 ##### 2.4：绘制画窗
 
-| 接口 | pushwd   | 将图像数据填入画窗并显示                |
+| 接口 | ui.push  | 将图像数据填入画窗并显示                |
 | ---- | -------- | --------------------------------------- |
 | 入参 | fd       | 窗口句柄                                |
 | 入参 | mapdata  | 图形数据（以上 gmap 获取的图像数据）    |
@@ -103,7 +112,7 @@ bool fillwd(fd,colour,flag) // fillwd(fd,0xFF0000,2) 画窗为全红；fillwd(fd
 | 返回 | bool     | 成功返回 true，失败返回 false           |
 
 ```c
-bool pushwd(fd,mapdata,left,top) 
+bool ui.push(fd,mapdata,left,top) 
 // pushwd(fd,mapdata) 在起点绘制mapdata图形；pushwd(fd,mapdata,20,10) 以20,10为起点绘制mapdata图形
 ```
 
@@ -111,14 +120,14 @@ bool pushwd(fd,mapdata,left,top)
 
 ##### 2.5：备份画窗
 
-| 接口 | backupwd     | 备份当前画窗图像数据                                         |
+| 接口 | ui.backup    | 备份当前画窗图像数据                                         |
 | ---- | ------------ | ------------------------------------------------------------ |
 | 入参 | fd           | 窗口句柄                                                     |
 | 入参 | x,y,w,h      | 对应用画窗上的图形区域，当这组参数不存时备份整个画窗存于内部 |
 | 返回 | mapdata/bool | 当有区域参数时成功返回mapdata，当没有区域参数时成功返回true，所有的失败返回false |
 
-```c
-bool backupwd(fd) \ mapdata backupwd(fd,x,y,w,h)
+```go
+bool ui.backup(fd) \ mapdata ui.backup(fd,x,y,w,h)
 // backupwd(fd) 备份整个画窗存于内部；
 // md=backupwd(fd,20,10,80,100) 以20,10为起，在当前画窗上取80*100的mapdata图形数据，
 // 前面返回的md参数可以用于pushwd，也可以用于smap输出图片文件
@@ -128,14 +137,14 @@ bool backupwd(fd) \ mapdata backupwd(fd,x,y,w,h)
 
 ##### 2.6：恢复画窗
 
-| 接口 | recoverywd | 将之前的内部备份数据恢复到当前画窗并显示             |
-| ---- | ---------- | ---------------------------------------------------- |
-| 入参 | fd         | 窗口句柄                                             |
-| 入参 | x,y,w,h    | 对应用画窗上的恢复区域，当这组参数不存时恢复整个画窗 |
-| 返回 | bool       | 成功返回true，失败返回false                          |
+| 接口 | ui.recovery | 将之前的内部备份数据恢复到当前画窗并显示             |
+| ---- | ----------- | ---------------------------------------------------- |
+| 入参 | fd          | 窗口句柄                                             |
+| 入参 | x,y,w,h     | 对应用画窗上的恢复区域，当这组参数不存时恢复整个画窗 |
+| 返回 | bool        | 成功返回true，失败返回false                          |
 
-```c
-bool recoverywd(fd) \ bool recoverywd(fd,x,y,w,h)
+```c#
+bool ui.recovery(fd) \ bool ui.recovery(fd,x,y,w,h)
 //（执行recoverywd 前，先要执行一次 backupwd(fd)）
 // recoverywd(fd) 恢复整个画窗；recoverywd(fd,20,10,80,100) 以20,10为起，恢复画窗上80*100的区域
 ```
@@ -144,14 +153,14 @@ bool recoverywd(fd) \ bool recoverywd(fd,x,y,w,h)
 
 ##### 2.7：保存画窗
 
-| 接口 | savewd  | 将当前画窗数据保存在图片文件 |
+| 接口 | ui.save | 将当前画窗数据保存在图片文件 |
 | ---- | ------- | ---------------------------- |
 | 入参 | fd      | 窗口句柄                     |
 | 入参 | mapname | 图片文件名                   |
 | 返回 | bool    | 成功返回1，失败返回其它      |
 
 ```c
-bool savewd(fd,mapname)
+bool ui.save(fd,mapname)
 // savewd(fd,"mapwd.png")  // 将fd画窗图形数据保存到mapwd.png文件中
 ```
 
@@ -159,14 +168,14 @@ bool savewd(fd,mapname)
 
 ##### 2.8：设置光标样式
 
-| 接口 | pushwd | 将图像数据填入画窗并显示                 |
-| ---- | ------ | ---------------------------------------- |
-| 入参 | fd     | 窗口句柄                                 |
-| 入参 | index  | 光标参数（32649手指指针，32512普通指针） |
-| 返回 | bool   | 成功返回 true，失败返回 false            |
+| 接口 | ui.push | 将图像数据填入画窗并显示                 |
+| ---- | ------- | ---------------------------------------- |
+| 入参 | fd      | 窗口句柄                                 |
+| 入参 | index   | 光标参数（32649手指指针，32512普通指针） |
+| 返回 | bool    | 成功返回 true，失败返回 false            |
 
 ```c
-bool cursorwd(fd,index) 
+bool ui.cursor(fd,index) 
 // cursorwd(fd,32649) 手指指针；cursorwd(fd,32512) 普通指针
 ```
 
@@ -174,25 +183,25 @@ bool cursorwd(fd,index)
 
 ##### 2.9：获取图形窗口底层接口
 
-| 接口 | getwd       | 获取图形窗口底层接口（相比openwd不需要通过Y语言，只接在C语言内部创建窗口） |
+| 接口 | ui.get      | 获取图形窗口底层接口（相比openwd不需要通过Y语言，只接在C语言内部创建窗口） |
 | ---- | ----------- | ------------------------------------------------------------ |
 | 返回 | UI_FuncBase | 返回内部接口UI_FuncBase数据                                  |
 
 ```
-UI_FuncBase getwd() //获取图形底层接口，用于C/C++直接开发，UI_FuncBase 定义参照《C程序引用方法定义2》
+UI_FuncBase ui.get() //获取图形底层接口，用于C/C++直接开发，UI_FuncBase 定义参照《C程序引用方法定义2》
 ```
 
 
 
 ##### 2.10：获取图形窗口控制信息
 
-| 接口 | pullwd         | 获取图形窗口控制信息，以便在其它库中直接用C程序控制窗口      |
+| 接口 | ui.pull        | 获取图形窗口控制信息，以便在其它库中直接用C程序控制窗口      |
 | ---- | -------------- | ------------------------------------------------------------ |
 | 入参 | fd             | 窗口句柄                                                     |
 | 返回 | UI_FuncSynPlus | 成功UI_FuncSynPlus数据（参考以下：《C 程序引用方法定义2》），失败返回 false |
 
 ```c
-UI_FuncSynPlus pullwd(fd) //如在以下示例实现getuibase功能，在支叶对话窗口输入：getuibase(pullwindow());
+UI_FuncSynPlus ui.pull(fd) //如在以下示例实现getuibase功能，在支叶对话窗口输入：getuibase(pullwindow());
 ```
 
 ```c
